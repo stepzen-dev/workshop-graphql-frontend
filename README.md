@@ -137,9 +137,20 @@ const query = gql`
     }
   }
 `;
-request('YOUR_GRAPHQL_ENDPOINT', query, {
+
+const result = await request('YOUR_GRAPHQL_ENDPOINT', query, {
   /* variables */
-}).then((data) => console.log(data));
+}).then((data) => (data));
+```
+
+You may need to adjust how `props` are returned since there will be no data wrapper:
+
+```
+  return {
+    props: {
+      ...result
+    },
+  };
 ```
 
 Replace the GraphQL API endpoint, query and variables with the correct values!
