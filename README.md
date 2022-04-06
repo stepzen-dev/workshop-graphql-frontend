@@ -55,7 +55,7 @@ The new query becomes:
 {
   github_user(login: "githubteacher") {
     bio
-    repositories {
+    repositories(first: 5) {
       edges {
         node {
           id
