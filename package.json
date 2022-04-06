@@ -1,0 +1,21 @@
+{
+  "name": "workshop-graphql-frontend",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.2.0",
+    "next": "12.1.4",
+    "react": "17",
+    "react-dom": "17"
+  },
+  "devDependencies": {
+    "eslint": "7",
+    "eslint-config-next": "12.1.4"
+  }
+}
