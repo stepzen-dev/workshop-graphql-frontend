@@ -106,7 +106,7 @@ Try getting your own Github repositories by adding your Personal Access Token fo
 <summary>Show solution</summary>
 <p>
 
-The GraphQL API endpoint needs to be replaced with the new one, which has a different GraphQL schema that is requesting the data from the actual Github API. Also, it takes a value for `github_token` to get your data from Github.
+The GraphQL API endpoint needs to be replaced with the new one, which has a different GraphQL schema that is requesting the data from the actual Github API. Also, it takes a value for `github_token` to get your data from Github. (Note: no 'Bearer' prefix required)
 // Add url to git commit
 
 </p>
