@@ -166,7 +166,7 @@ Replace the GraphQL API endpoint, query and variables with the correct values!
 
 ### Excercise 5
 
-Suppose you want to do multiple queries from your application, like to get a specific repository when you click a link. You don't want to duplicate the configuration for your GraphQL request in every method. Instead, you can create a `client` instance, that can be used for every query you want to run. Create a new file called `client.js` in which you define this instance https://github.com/prisma-labs/graphql-request#usage.
+Suppose you want to do multiple queries from your application, like to get a specific repository when you click a link. You don't want to duplicate the configuration for your GraphQL request in every method. Instead, you can create a `client` instance, that can be used for every query you want to run. Create a new file `pages.client.js` in which you define this instance https://github.com/prisma-labs/graphql-request#usage.
 
 Refactor the `request` method in `pages/index.js` to use the client instance. Also, open the file `repository/[...params].js`. Import the client and use a `request` method to get the data for this page. The page should display a specific repository based on the params in the URL, e.g. `http:localhost:3000/repository/stepzen-dev/examples` should show the repository from (https://github.com/stepzen-dev/examples)[https://github.com/stepzen-dev/examples].
 
