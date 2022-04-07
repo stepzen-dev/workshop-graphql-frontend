@@ -1,3 +1,7 @@
+# GraphQL For Frontend Developers Workshop
+
+There are many advantages to using GraphQL as a datasource for frontend development, compared to REST APIs. We developers in example need to write a lot of imperative code to retrieve data to display in our applications and handle state. With GraphQL you cannot only decrease the amount of code needed around data fetching and state-management you'll also get increased flexibility, better performance and most of all an improved developer experience. In this workshop you'll learn how to handle GraphQL in your frontend React application, compare different clients and can even auto generate code based on GraphQL!
+
 ## Getting Started
 
 Clone this repository (or fork it) and install all dependencies by running:
@@ -24,9 +28,9 @@ You can start editing the page by modifying `pages/index.js`. The page auto-upda
 
 ### Excercise 1
 
-This application is using a mocked GraphQL API for Github and DEV.to, you can explore it in [StepZen GraphQL Studio](https://graphql.stepzen.com/devto,github) or using GraphiQL. From StepZen GraphQL Studio you can find the GraphQL API endpoint that leads to GraphiQL in the top-right of your screen (or [here](https://graphql39.stepzen.net/api/39ecd3e09001763c963ca2053649ad85/__graphql)).
+This application uses a mocked GraphQL API for Github and DEV.to, you can explore it in [StepZen GraphQL Studio](https://graphql.stepzen.com/devto,github) or using GraphiQL. From StepZen GraphQL Studio, you can find the GraphQL API endpoint that leads to GraphiQL in the top-right of your screen (or [here](https://graphql39.stepzen.net/api/39ecd3e09001763c963ca2053649ad85/__graphql)).
 
-Run the following query that will combine information from a (mocked) Github user and its repositories, and articles from DEV.to:
+Run the following query that will combine information from a (mocked) Github user and its repositories and articles from DEV.to:
 
 ```graphql
 {
@@ -48,7 +52,7 @@ Run the following query that will combine information from a (mocked) Github use
 }
 ```
 
-Can you alter the query so it will also get the `description`, `stargazerCount` (number of stars) and the `updatedAt` fields from Github? This query needs to be added to the function that fetches the data from the GraphQL API in `pages.index.js`.
+Can you alter the query to get the `description`, `stargazerCount` (number of stars), and the `updatedAt` fields from Github? This query needs to be added to the function that fetches the data from the GraphQL API in `pages.index.js`.
 
 <details>
 <summary>Show solution</summary>
@@ -78,6 +82,8 @@ The new query becomes:
 }
 ```
 
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-1)
+
 This must be added to the `fetch` function on line 81. Save your code and return to the application on [http://localhost:3000](http://localhost:3000) to see more information being displayed for the (mocked) repositories.
 
 </p>
@@ -85,9 +91,9 @@ This must be added to the `fetch` function on line 81. Save your code and return
 
 ### Excercise 2
 
-The query you've used in the previous exercise has a query parameter, which can be better handled from a named query. Next to helping you to handle query variables, mamed queries are important for your GraphQL API and Client later, as they are often used for caching purposes.
+The query you've used in the previous exercise has a query parameter, which can be better handled from a named query. Next to helping you to handle query variables, named queries are important for your GraphQL API and Client later, as they are often used for caching purposes.
 
-Go to StepZen GraphQL Studio or GraphiQL and change the query to a named one that takes the `login` query parameter. Also, use this named query in the `fetch` function in `pages/index.js`. How would you handle the variable for the query paramater?
+Go to StepZen GraphQL Studio or GraphiQL and change the query to a named one that takes the `login` query parameter. Also, use this named query in the `fetch` function in `pages/index.js`. How would you handle the variable for the query parameter?
 
 Hint: It doesn't matter how you name your query.
 
@@ -97,7 +103,7 @@ Hint: It doesn't matter how you name your query.
 
 The named query must be added to the `fetch` function around line 81. The query and the variable for the query parameter are added as follows:
 
-// Add url to git commit
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-2)
 
 </p>
 </details>
@@ -115,7 +121,8 @@ Try getting your own Github repositories by adding your Personal Access Token fo
 <p>
 
 The GraphQL API endpoint needs to be replaced with the new one, which has a different GraphQL schema that is requesting the data from the actual Github API. Also, it takes a value for `github_token` to get your data from Github. (Note: no 'Bearer' prefix required)
-// Add url to git commit
+
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-3)
 
 </p>
 </details>
@@ -167,14 +174,14 @@ Replace the GraphQL API endpoint, query and variables with the correct values!
 <summary>Show solution</summary>
 <p>
 
-// Add url to git commit
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-4)
 
 </p>
 </details>
 
 ### Excercise 5
 
-Suppose you want to do multiple queries from your application, like to get a specific repository when you click a link. You don't want to duplicate the configuration for your GraphQL request in every method. Instead, you can create a `client` instance, that can be used for every query you want to run. Create a new file `pages.client.js` in which you define this instance https://github.com/prisma-labs/graphql-request#usage.
+Suppose you want to do multiple queries from your application, like to get a specific repository when you click a link. You don't want to duplicate the configuration for your GraphQL request in every method. Instead, you can create a `client` instance that can be used for every query you want to run. Create a new file `pages.client.js` in which you define this instance https://github.com/prisma-labs/graphql-request#usage.
 
 Refactor the `request` method in `pages/index.js` to use the client instance. Also, open the file `repository/[...params].js`. Import the client and use a `request` method to get the data for this page. The page should display a specific repository based on the params in the URL, e.g. `http:localhost:3000/repository/stepzen-dev/examples` should show the repository from (https://github.com/stepzen-dev/examples)[https://github.com/stepzen-dev/examples].
 
@@ -186,26 +193,20 @@ Hint: The `a` element to visit a repository detail page should look like `<a key
 
 In `client.js` you should have the following. Include an `Authentication` header with your StepZen API Key if you're not using the StepZen GraphQL Studio endpoint, but have deployed the schema on your own account.
 
-// Add url to git commit
+In `pages/index.js` you need to import `client` from the file `client.js`, and use the `request` method from this client instance to query the GraphQL API.
 
-In `pages/index.js` you need to import `client` from the file `client.js`, and use the `request` method from this client instance to query the GraphQL API:
-
-// Add url to git commit
-
-Also, change the `query` so it will get the `owner` field:
-
-// Add url to git commit
+Also, change the `query` so it will get the `owner` field.
 
 Finally, in `repository/[...params].js` you should import the client instance so the repository data will be requested from the GraphQL API.
 
-// Add url to git commit
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-5)
 
 </p>
 </details>
 
 ### Excercise 5 - BONUS
 
-when you're reusing fields in GraphQL queries, you can make use of a Fragment. The queries used in `pages/index.js` and `pages/repository/[...param].js` both need fields from a Github repository. How would you write this fragment?
+When you're reusing fields in GraphQL queries, you can make use of a Fragment. The queries used in `pages/index.js` and `pages/repository/[...param].js` both need fields from a Github repository. How would you write this fragment?
 
 <details>
 <summary>Show solution</summary>
@@ -273,7 +274,7 @@ query MyQuery(
 }
 ```
 
-The query parameters for `first` and `after` are used for pagination. With `first` you define the amount of results, while `after` is the cursor of the last result on the previous page. Think of `cursor` as `offset` which you might know from other pagination methods. To dynamicall get the value for `after` you should use the value from the `endCursor` field in `pageInfo`. Also, `hasNextPage` lets you know if there is a next page based on the values for `first` and `endCursor`.
+The query parameters for `first` and `after` are used for pagination. With `first` you define the amount of results, while `after` is the cursor of the last result on the previous page. Think of `cursor` as `offset`, which you might know from other pagination methods. To dynamically get the value for `after` you should use the value from the `endCursor` field in `pageInfo`. Also, `hasNextPage` lets you know if there is a next page based on `first` and `endCursor` values.
 
 Implement pagination for the repositories in `pages/index.js`. Use a small value for `first` if you don't have many repositories linked to your Github account.
 
@@ -281,7 +282,7 @@ Implement pagination for the repositories in `pages/index.js`. Use a small value
 <summary>Show solution</summary>
 <p>
 
-// Add url to git commit
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-6)
 
 </p>
 </details>
@@ -323,20 +324,20 @@ Finally, add the `generate` script to your `package.json` file:
   }
 ```
 
-You can run `npm run generate` or `yarn generate` and a new file called `graphql.ts` is generated. This has types for your GraphQL schema from the URL from StepZen GraphQL Studio (or your own GraphQL API endpoint) and for the queries as defined in `queries.graphql`. Use the generate code for GraphQL Request in the application!
+You can run `npm run generate` or `yarn generate` and a new file called `graphql.ts` is generated. This has types for your GraphQL schema from the URL from StepZen GraphQL Studio (or your own GraphQL API endpoint) and for the queries as defined in `queries.graphql`. Use the generated code for GraphQL Request in the application!
 
 <details>
 <summary>Show solution</summary>
 <p>
 
-// Add url to git commit
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-7)
 
 </p>
 </details>
 
 ### Excercise 8 - BONUS
 
-You can use React Query to add caching, prefetching, refetching and tons of other features to your GraphQL application. See [here](https://react-query.tanstack.com/examples/basic-graphql-request) for more information on React Query for GraphQL, as we're doing Server-side requests in this application make sure to follow [these docs](https://react-query.tanstack.com/guides/ssr) while setting up.
+You can use React Query to add caching, prefetching, refetching, and tons of other features to your GraphQL application. See [here](https://react-query.tanstack.com/examples/basic-graphql-request) for more information on React Query for GraphQL, as we're doing Server-side requests in this application make sure to follow [these docs](https://react-query.tanstack.com/guides/ssr) while setting up.
 
 <details>
 <summary>Show solution</summary>
@@ -350,9 +351,10 @@ npm i react-query
 yarn add react-query
 ```
 
-And make the following changes
+And make the following changes:
 
-// Add url to git commit
+[Look at the code](https://github.com/stepzen-dev/workshop-graphql-frontend/tree/ex-8)
+
 
 </p>
 </details>

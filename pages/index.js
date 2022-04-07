@@ -1,9 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { gql } from 'graphql-request';
-import client from '../client';
 import styles from '../styles/Home.module.css';
-import { getSdk } from '../graphql';
 
 export default function Home(props) {
   return (
@@ -37,20 +34,9 @@ export default function Home(props) {
                 props.github_user.repositories.edges.length > 0 &&
                 props.github_user.repositories.edges.map(
                   ({
-                    node: {
-                      id,
-                      owner,
-                      name,
-                      description,
-                      stargazerCount,
-                      updatedAt,
-                    },
+                    node: { id, name, description, stargazerCount, updatedAt },
                   }) => (
-                    <a
-                      key={id}
-                      href={`/repository/${owner.login}/${name}`}
-                      className={styles.card}
-                    >
+                    <a key={id} href='#' className={styles.card}>
                       <h2>{name} &rarr;</h2>
                       <p>{description}</p>
                       <ul>
@@ -61,13 +47,6 @@ export default function Home(props) {
                   ),
                 )}
             </div>
-            {props.github_user?.repositories?.pageInfo?.hasNextPage && (
-              <a
-                href={`/?first=5&after=${props.github_user.repositories.pageInfo.endCursor}`}
-              >
-                Next Page &rarr;
-              </a>
-            )}
           </>
         ) : (
           <i>Error loading your Github information</i>
@@ -110,20 +89,41 @@ export default function Home(props) {
   );
 }
 
-export async function getServerSideProps({
-  query: { first = 5, after = null },
-}) {
-  const result = await getSdk(client).MyQuery({
-    login: 'royderks',
-    username: 'cerchie',
-    github_token: '',
-    first,
-    after,
-  });
+export async function getServerSideProps() {
+  const result = await fetch(
+    'https://graphql39.stepzen.net/api/39ecd3e09001763c963ca2053649ad85/__graphql',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `
+        {
+          github_user(login: "githubteacher") {
+            bio
+            repositories(first: 5) {
+              edges {
+                node {
+                  id
+                  name
+                }
+              }
+            }
+          }
+          devto_getArticles(username: "cerchie") {
+            id
+            title
+            url
+          }
+        }`,
+      }),
+    },
+  ).then((res) => res.json());
 
   return {
     props: {
-      ...result,
+      ...result?.data,
     },
   };
 }
