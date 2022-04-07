@@ -16,7 +16,7 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. Mocked data from Github is being pulled into the application using GraphQL and StepZen.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. Mocked data from and DEV.to is being pulled into the application using GraphQL and StepZen.
 
 You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
 
@@ -24,9 +24,9 @@ You can start editing the page by modifying `pages/index.js`. The page auto-upda
 
 ### Excercise 1
 
-This application is using a mocked GraphQL API for Github, you can explore it in [StepZen GraphQL Studio](https://graphql.stepzen.com/github) or using GraphiQL. From StepZen GraphQL Studio you can find the GraphQL API endpoint that leads to GraphiQL in the top-right of your screen (or [here](https://graphql69.stepzen.net/api/690af4e7ebf2cdcbd4fb6200eb503c4f/__graphql)).
+This application is using a mocked GraphQL API for Github and DEV.to, you can explore it in [StepZen GraphQL Studio](https://graphql.stepzen.com/devto,github) or using GraphiQL. From StepZen GraphQL Studio you can find the GraphQL API endpoint that leads to GraphiQL in the top-right of your screen (or [here](https://graphql39.stepzen.net/api/39ecd3e09001763c963ca2053649ad85/__graphql)).
 
-Run the following query that will combine information from a (mocked) Github user and its repositories:
+Run the following query that will combine information from a (mocked) Github user and its repositories, and articles from DEV.to:
 
 ```graphql
 {
@@ -41,10 +41,14 @@ Run the following query that will combine information from a (mocked) Github use
       }
     }
   }
+  devto_getArticles(username: "cerchie") {
+    title
+    url
+  }
 }
 ```
 
-Can you alter the query so it will also get the `description`, `stargazerCount` (number of stars) and the `updatedAt` fields? This query needs to be added to the function that fetches the data from the GraphQL API in `pages.index.js`.
+Can you alter the query so it will also get the `description`, `stargazerCount` (number of stars) and the `updatedAt` fields from Github? This query needs to be added to the function that fetches the data from the GraphQL API in `pages.index.js`.
 
 <details>
 <summary>Show solution</summary>
@@ -66,6 +70,10 @@ The new query becomes:
         }
       }
     }
+  }
+  devto_getArticles(username: "cerchie") {
+    title
+    url
   }
 }
 ```
@@ -96,9 +104,9 @@ The named query must be added to the `fetch` function around line 81. The query 
 
 ### Excercise 3
 
-So far we've been using mocked data to get the Github information, but let's use some real Github data. More importantly, your own Github data! From StepZen GraphQL Studio you can select to use mocked data, or actual data for which you need to have a Github Personal Access Token. Create a Github personal access token [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+So far we've been using mocked data to get the Github and DEV.to information, but let's use some real data. More importantly, your own Github data (and DEV.to if you have an account)! From StepZen GraphQL Studio you can select to use mocked data, or actual data for which you need to have a Github Personal Access Token. Create a Github personal access token [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 
-After creating a Github Personal Access Token go to StepZen GraphQL Studio and deselect the "mocked" toggle. The GraphQL schema for this endpoint will change and a new endpoint will be generated. You can find the new endpoint in the top-right of the screen (or [here](https://graphqlbf.stepzen.net/api/bf215181b5140522137b3d4f6b73544a/__graphql)).
+After creating a Github Personal Access Token go to StepZen GraphQL Studio and deselect the "mocked" toggle. The GraphQL schema for this endpoint will change and a new endpoint will be generated. You can find the new endpoint in the top-right of the screen (or [here](https://graphql07.stepzen.net/api/0777b07452dfe5d76ce46a4fecb3918d/__graphql)).
 
 Try getting your own Github repositories by adding your Personal Access Token for the `github_token` query parameter in GraphiQL, and replace the GraphQL API endpoint and query in `pages/index.js` with new ones.
 
@@ -184,18 +192,57 @@ Finally, in `repository/[...params].js` you should import the client instance so
 </p>
 </details>
 
+### Excercise 5 - BONUS
+
+when you're reusing fields in GraphQL queries, you can make use of a Fragment. The queries used in `pages/index.js` and `pages/repository/[...param].js` both need fields from a Github repository. How would you write this fragment?
+
+<details>
+<summary>Show solution</summary>
+<p>
+
+```js
+const query = gql`
+  fragment RepositoryFields on Github_Repository {
+    id
+    name
+    description
+    stargazerCount
+    updatedAt
+  }
+
+  query GetGithubRepository(
+    $name: String!
+    $owner: String!
+    $github_token: Secret!
+  ) {
+    github_repository(name: $name, owner: $owner, github_token: $github_token) {
+      ...RepositoryFields
+    }
+  }
+`;
+```
+
+</p>
+</details>
+
 ### Excercise 6
 
 Our GraphQL API supports cursor-based pagination, which we can make use of in the application. If you'd look at the following query:
 
 ```graphql
-query GetGithubUser($login: String!, $github_token: Secret!, $first: Int!, $after: String!) {
+query MyQuery(
+  $login: String!
+  $username: String!
+  $github_token: Secret!
+  $first: Int!
+  $after: String!
+) {
   github_user(login: $login, github_token: $github_token) {
     bio
     repositories(first: $first, after: $after) {
       pageInfo {
-          endCursor
-          hasNextPage
+        endCursor
+        hasNextPage
       }
       edges {
         node {
@@ -207,6 +254,10 @@ query GetGithubUser($login: String!, $github_token: Secret!, $first: Int!, $afte
         }
       }
     }
+  }
+  devto_getArticles(username: $username) {
+    title
+    url
   }
 }
 ```
@@ -224,14 +275,71 @@ Implement pagination for the repositories in `pages/index.js`. Use a small value
 </p>
 </details>
 
-
 ### Excercise 7
 
-Let's convert our files to TypeScript, so we can autogenerate the code to get the 
+Let's convert our files to TypeScript, so we can autogenerate the code to do our requests to the GraphQL API. First, install GraphQL Codegen and it's dependencies:
+
+```bash
+npm i @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-graphql-request
+# or
+yarn add @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-graphql-request
+```
+
+Create a new file called `codegen.yml` with the following contents:
+
+```yaml
+overwrite: true
+schema: 'https://graphql07.stepzen.net/api/0777b07452dfe5d76ce46a4fecb3918d/__graphql'
+documents: '**/*.graphql'
+generates:
+  graphql.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-graphql-request'
+```
+
+Then create a file called `queries.graphql` and add all the queries from `pages/index.js` and `pages/repository/[...param].js` into it.
+
+Finally, add the `generate` script to your `package.json` file:
+
+```json
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "generate": "graphql-codegen --config codegen.yml"
+  }
+```
+
+You can run `npm run generate` or `yarn generate` and a new file called `graphql.ts` is generated. This has types for your GraphQL schema from the URL from StepZen GraphQL Studio (or your own GraphQL API endpoint) and for the queries as defined in `queries.graphql`. Use the generate code for GraphQL Request in the application!
 
 <details>
 <summary>Show solution</summary>
 <p>
+
+// Add url to git commit
+
+</p>
+</details>
+
+### Excercise 8 - BONUS
+
+You can use React Query to add caching, prefetching, refetching and tons of other features to your GraphQL application. See [here](https://react-query.tanstack.com/examples/basic-graphql-request) for more information on React Query for GraphQL, as we're doing Server-side requests in this application make sure to follow [these docs](https://react-query.tanstack.com/guides/ssr) while setting up.
+
+<details>
+<summary>Show solution</summary>
+<p>
+
+Install `react-query` from npm:
+
+```bash
+npm i react-query
+# or
+yarn add react-query
+```
+
+And make the following changes
 
 // Add url to git commit
 

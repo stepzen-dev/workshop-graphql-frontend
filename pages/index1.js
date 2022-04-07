@@ -51,17 +51,37 @@ export default function Home(props) {
         ) : (
           <i>Error loading your Github information</i>
         )}
+
+        <p></p>
+
+        <h2>My DEV.to articles</h2>
+        {props?.devto_getArticles && props.devto_getArticles.length > 0 ? (
+          <div className={styles.grid}>
+            {props.devto_getArticles.map(({ id, title, url }) => (
+              <a key={id} href={url} className={styles.card}>
+                <h2>{title} &rarr;</h2>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <i>Error loading your DEV.to information</i>
+        )}
       </main>
 
       <footer className={styles.footer}>
         <a
-          href='https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
+          href='https://stepzen.com/getting-started?utm_source=stepzen-examples&utm_medium=default-template&utm_campaign=stepzen-examples'
           target='_blank'
           rel='noopener noreferrer'
         >
           Powered by{' '}
           <span className={styles.logo}>
-            <Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
+            <Image
+              src='/stepzen.svg'
+              alt='StepZen Logo'
+              width={100}
+              height={25}
+            />
           </span>
         </a>
       </footer>
@@ -71,7 +91,7 @@ export default function Home(props) {
 
 export async function getServerSideProps() {
   const result = await fetch(
-    'https://graphql69.stepzen.net/api/690af4e7ebf2cdcbd4fb6200eb503c4f/__graphql',
+    'https://graphql39.stepzen.net/api/39ecd3e09001763c963ca2053649ad85/__graphql',
     {
       method: 'POST',
       headers: {
@@ -82,7 +102,7 @@ export async function getServerSideProps() {
         {
           github_user(login: "githubteacher") {
             bio
-            repositories {
+            repositories(first: 5) {
               edges {
                 node {
                   id
@@ -93,6 +113,10 @@ export async function getServerSideProps() {
                 }
               }
             }
+          }
+          devto_getArticles(username: "cerchie") {
+            title
+            url
           }
         }`,
       }),

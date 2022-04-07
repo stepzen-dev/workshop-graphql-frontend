@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { gql } from 'graphql-request';
-// import client from '../../client';
+import client from '../../client';
 import styles from '../../styles/Home.module.css';
 
 const query = gql`
@@ -66,12 +66,12 @@ export default function Repository(props) {
 }
 
 export async function getServerSideProps({ params }) {
-  const [name, owner] = await params.param;
+  const [owner, name] = await params.param;
 
   const result = await client.request(query, {
     name,
     owner,
-    github_token: ''
+    github_token: '',
   });
 
   return {

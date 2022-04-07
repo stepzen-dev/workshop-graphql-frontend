@@ -98,37 +98,24 @@ export async function getServerSideProps() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        query: `query MyQuery($login: String!, $username: String!, $first: Int = 5) {
-          github_user(login: $login) {
+        query: `
+        {
+          github_user(login: "githubteacher") {
             bio
-            repositories(first: $first) {
-              pageInfo {
-                endCursor
-                hasNextPage
-              }
+            repositories(first: 5) {
               edges {
                 node {
                   id
-                  owner {
-                    login
-                  }
                   name
-                  description
-                  stargazerCount
-                  updatedAt
                 }
               }
             }
           }
-          devto_getArticles(username: $username) {
+          devto_getArticles(username: "cerchie") {
             title
             url
           }
         }`,
-        variables: {
-          login: 'githubteacher',
-          username: 'cerchie',
-        },
       }),
     },
   ).then((res) => res.json());

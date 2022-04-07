@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { gql } from 'graphql-request';
+import { dehydrate, QueryClient, useQuery } from 'react-query';
 import client from '../client';
 import styles from '../styles/Home.module.css';
 
@@ -10,10 +11,11 @@ const query = gql`
     $username: String!
     $github_token: Secret!
     $first: Int = 5
+    $after: String = null
   ) {
     github_user(login: $login, github_token: $github_token) {
       bio
-      repositories(first: $first) {
+      repositories(first: $first, after: $after) {
         pageInfo {
           endCursor
           hasNextPage
@@ -33,13 +35,28 @@ const query = gql`
       }
     }
     devto_getArticles(username: $username) {
+      id
       title
       url
     }
   }
 `;
 
-export default function Home(props) {
+async function getResults(first, after) {
+  return await client.request(query, {
+    login: 'royderks',
+    username: 'cerchie',
+    github_token: '',
+    first,
+    after,
+  });
+}
+
+export default function Home() {
+  // This useQuery could just as well happen in some deeper child to
+  // the "Posts"-page, data will be available immediately either way
+  const { status, data, error, isFetching } = useQuery('results', getResults);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -61,15 +78,15 @@ export default function Home(props) {
         </p>
 
         <h2>My Github repositories</h2>
-        {props.github_user ? (
+        {data.github_user ? (
           <>
             <p>
-              <i>Bio:</i> {props.github_user?.bio}
+              <i>Bio:</i> {data.github_user?.bio}
             </p>
             <div className={styles.grid}>
-              {props.github_user?.repositories?.edges &&
-                props.github_user.repositories.edges.length > 0 &&
-                props.github_user.repositories.edges.map(
+              {data.github_user?.repositories?.edges &&
+                data.github_user.repositories.edges.length > 0 &&
+                data.github_user.repositories.edges.map(
                   ({
                     node: {
                       id,
@@ -95,6 +112,13 @@ export default function Home(props) {
                   ),
                 )}
             </div>
+            {data.github_user?.repositories?.pageInfo?.hasNextPage && (
+              <a
+                href={`/?first=5&after=${data.github_user.repositories.pageInfo.endCursor}`}
+              >
+                Next Page &rarr;
+              </a>
+            )}
           </>
         ) : (
           <i>Error loading your Github information</i>
@@ -103,9 +127,9 @@ export default function Home(props) {
         <p></p>
 
         <h2>My DEV.to articles</h2>
-        {props?.devto_getArticles && props.devto_getArticles.length > 0 ? (
+        {data?.devto_getArticles && data.devto_getArticles.length > 0 ? (
           <div className={styles.grid}>
-            {props.devto_getArticles.map(({ id, title, url }) => (
+            {data.devto_getArticles.map(({ id, title, url }) => (
               <a key={id} href={url} className={styles.card}>
                 <h2>{title} &rarr;</h2>
               </a>
@@ -137,16 +161,16 @@ export default function Home(props) {
   );
 }
 
-export async function getServerSideProps() {
-  const result = await client.request(query, {
-    login: 'royderks',
-    username: 'cerchie',
-    github_token: '',
-  });
+export async function getServerSideProps({
+  query: { first = 5, after = null },
+}) {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery('results', getResults(first, after));
 
   return {
     props: {
-      ...result,
+      dehydratedState: dehydrate(queryClient),
     },
   };
 }
