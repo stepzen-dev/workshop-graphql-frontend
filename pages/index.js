@@ -1,6 +1,45 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { gql } from 'graphql-request';
+import client from '../client';
 import styles from '../styles/Home.module.css';
+
+const query = gql`
+  query MyQuery(
+    $login: String!
+    $username: String!
+    $github_token: Secret!
+    $first: Int = 5
+    $after: String = null
+  ) {
+    github_user(login: $login, github_token: $github_token) {
+      bio
+      repositories(first: $first, after: $after) {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+        edges {
+          node {
+            id
+            owner {
+              login
+            }
+            name
+            description
+            stargazerCount
+            updatedAt
+          }
+        }
+      }
+    }
+    devto_getArticles(username: $username) {
+      id
+      title
+      url
+    }
+  }
+`;
 
 export default function Home(props) {
   return (
@@ -34,9 +73,20 @@ export default function Home(props) {
                 props.github_user.repositories.edges.length > 0 &&
                 props.github_user.repositories.edges.map(
                   ({
-                    node: { id, name, description, stargazerCount, updatedAt },
+                    node: {
+                      id,
+                      owner,
+                      name,
+                      description,
+                      stargazerCount,
+                      updatedAt,
+                    },
                   }) => (
-                    <a key={id} href='#' className={styles.card}>
+                    <a
+                      key={id}
+                      href={`/repository/${owner.login}/${name}`}
+                      className={styles.card}
+                    >
                       <h2>{name} &rarr;</h2>
                       <p>{description}</p>
                       <ul>
@@ -47,21 +97,48 @@ export default function Home(props) {
                   ),
                 )}
             </div>
+            {props.github_user?.repositories?.pageInfo?.hasNextPage && (
+              <a
+                href={`/?first=5&after=${props.github_user.repositories.pageInfo.endCursor}`}
+              >
+                Next Page &rarr;
+              </a>
+            )}
           </>
         ) : (
           <i>Error loading your Github information</i>
+        )}
+
+        <p></p>
+
+        <h2>My DEV.to articles</h2>
+        {props?.devto_getArticles && props.devto_getArticles.length > 0 ? (
+          <div className={styles.grid}>
+            {props.devto_getArticles.map(({ id, title, url }) => (
+              <a key={id} href={url} className={styles.card}>
+                <h2>{title} &rarr;</h2>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <i>Error loading your DEV.to information</i>
         )}
       </main>
 
       <footer className={styles.footer}>
         <a
-          href='https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
+          href='https://stepzen.com/getting-started?utm_source=stepzen-examples&utm_medium=default-template&utm_campaign=stepzen-examples'
           target='_blank'
           rel='noopener noreferrer'
         >
           Powered by{' '}
           <span className={styles.logo}>
-            <Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
+            <Image
+              src='/stepzen.svg'
+              alt='StepZen Logo'
+              width={100}
+              height={25}
+            />
           </span>
         </a>
       </footer>
@@ -69,36 +146,20 @@ export default function Home(props) {
   );
 }
 
-export async function getServerSideProps() {
-  const result = await fetch(
-    'https://graphql69.stepzen.net/api/690af4e7ebf2cdcbd4fb6200eb503c4f/__graphql',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `
-        {
-          github_user(login: "githubteacher") {
-            bio
-            repositories {
-              edges {
-                node {
-                  id
-                  name
-                }
-              }
-            }
-          }
-        }`,
-      }),
-    },
-  ).then((res) => res.json());
+export async function getServerSideProps({
+  query: { first = 5, after = null },
+}) {
+  const result = await client.request(query, {
+    login: 'royderks',
+    username: 'cerchie',
+    github_token: '',
+    first,
+    after,
+  });
 
   return {
     props: {
-      ...result?.data,
+      ...result,
     },
   };
 }
