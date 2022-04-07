@@ -59,7 +59,7 @@ The new query becomes:
 {
   github_user(login: "githubteacher") {
     bio
-    repositories {
+    repositories(first: 5) {
       edges {
         node {
           id
@@ -114,7 +114,7 @@ Try getting your own Github repositories by adding your Personal Access Token fo
 <summary>Show solution</summary>
 <p>
 
-The GraphQL API endpoint needs to be replaced with the new one, which has a different GraphQL schema that is requesting the data from the actual Github API. Also, it takes a value for `github_token` to get your data from Github.
+The GraphQL API endpoint needs to be replaced with the new one, which has a different GraphQL schema that is requesting the data from the actual Github API. Also, it takes a value for `github_token` to get your data from Github. (Note: no 'Bearer' prefix required)
 // Add url to git commit
 
 </p>
@@ -145,9 +145,20 @@ const query = gql`
     }
   }
 `;
-request('YOUR_GRAPHQL_ENDPOINT', query, {
+
+const result = await request('YOUR_GRAPHQL_ENDPOINT', query, {
   /* variables */
-}).then((data) => console.log(data));
+}).then((data) => (data));
+```
+
+You may need to adjust how `props` are returned since there will be no data wrapper:
+
+```
+  return {
+    props: {
+      ...result
+    },
+  };
 ```
 
 Replace the GraphQL API endpoint, query and variables with the correct values!
@@ -163,11 +174,11 @@ Replace the GraphQL API endpoint, query and variables with the correct values!
 
 ### Excercise 5
 
-Suppose you want to do multiple queries from your application, like to get a specific repository when you click a link. You don't want to duplicate the configuration for your GraphQL request in every method. Instead, you can create a `client` instance, that can be used for every query you want to run. Create a new file called `client.js` in which you define this instance https://github.com/prisma-labs/graphql-request#usage.
+Suppose you want to do multiple queries from your application, like to get a specific repository when you click a link. You don't want to duplicate the configuration for your GraphQL request in every method. Instead, you can create a `client` instance, that can be used for every query you want to run. Create a new file `pages.client.js` in which you define this instance https://github.com/prisma-labs/graphql-request#usage.
 
 Refactor the `request` method in `pages/index.js` to use the client instance. Also, open the file `repository/[...params].js`. Import the client and use a `request` method to get the data for this page. The page should display a specific repository based on the params in the URL, e.g. `http:localhost:3000/repository/stepzen-dev/examples` should show the repository from (https://github.com/stepzen-dev/examples)[https://github.com/stepzen-dev/examples].
 
-Hint: The `a` element to visit a repository detail page should look like `<a key={id} href={`/${owner.login}/${name}`} className={styles.card}>`. Where would you get this information from?
+Hint: The `a` element to visit a repository detail page should look like `<a key={id} href={`repository/${owner.login}/${name}`} className={styles.card}>`. Where would you get this information from?
 
 <details>
 <summary>Show solution</summary>
