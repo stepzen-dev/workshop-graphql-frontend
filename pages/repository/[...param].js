@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { gql } from 'graphql-request';
-// import client from '../../client';
+import client from '../../client';
 import styles from '../../styles/Home.module.css';
 
 const query = gql`
@@ -51,13 +51,18 @@ export default function Repository(props) {
 
       <footer className={styles.footer}>
         <a
-          href='https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
+          href='https://stepzen.com/getting-started?utm_source=stepzen-examples&utm_medium=default-template&utm_campaign=stepzen-examples'
           target='_blank'
           rel='noopener noreferrer'
         >
           Powered by{' '}
           <span className={styles.logo}>
-            <Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
+            <Image
+              src='/stepzen.svg'
+              alt='StepZen Logo'
+              width={100}
+              height={25}
+            />
           </span>
         </a>
       </footer>
@@ -66,12 +71,12 @@ export default function Repository(props) {
 }
 
 export async function getServerSideProps({ params }) {
-  const [name, owner] = await params.param;
+  const [owner, name] = await params.param;
 
   const result = await client.request(query, {
     name,
     owner,
-    github_token: ''
+    github_token: '',
   });
 
   return {

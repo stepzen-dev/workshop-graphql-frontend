@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
