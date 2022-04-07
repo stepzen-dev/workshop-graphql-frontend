@@ -170,7 +170,7 @@ Suppose you want to do multiple queries from your application, like to get a spe
 
 Refactor the `request` method in `pages/index.js` to use the client instance. Also, open the file `repository/[...params].js`. Import the client and use a `request` method to get the data for this page. The page should display a specific repository based on the params in the URL, e.g. `http:localhost:3000/repository/stepzen-dev/examples` should show the repository from (https://github.com/stepzen-dev/examples)[https://github.com/stepzen-dev/examples].
 
-Hint: The `a` element to visit a repository detail page should look like `<a key={id} href={`/${owner.login}/${name}`} className={styles.card}>`. Where would you get this information from?
+Hint: The `a` element to visit a repository detail page should look like `<a key={id} href={`repository/${owner.login}/${name}`} className={styles.card}>`. Where would you get this information from?
 
 <details>
 <summary>Show solution</summary>
