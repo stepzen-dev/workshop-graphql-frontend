@@ -3,28 +3,7 @@ import Image from 'next/image';
 import { gql } from 'graphql-request';
 import client from '../client';
 import styles from '../styles/Home.module.css';
-
-const query = gql`
-  query GetGithubUser($login: String!, $github_token: Secret!) {
-    github_user(login: $login, github_token: $github_token) {
-      bio
-      repositories {
-        edges {
-          node {
-            id
-            owner {
-              login
-            }
-            name
-            description
-            stargazerCount
-            updatedAt
-          }
-        }
-      }
-    }
-  }
-`;
+import { getSdk } from '../graphql';
 
 export default function Home(props) {
   return (
@@ -69,7 +48,7 @@ export default function Home(props) {
                   }) => (
                     <a
                       key={id}
-                      href={`/${owner.login}/${name}`}
+                      href={`/repository/${owner.login}/${name}`}
                       className={styles.card}
                     >
                       <h2>{name} &rarr;</h2>
@@ -82,21 +61,48 @@ export default function Home(props) {
                   ),
                 )}
             </div>
+            {props.github_user?.repositories?.pageInfo?.hasNextPage && (
+              <a
+                href={`/?first=5&after=${props.github_user.repositories.pageInfo.endCursor}`}
+              >
+                Next Page &rarr;
+              </a>
+            )}
           </>
         ) : (
           <i>Error loading your Github information</i>
+        )}
+
+        <p></p>
+
+        <h2>My DEV.to articles</h2>
+        {props?.devto_getArticles && props.devto_getArticles.length > 0 ? (
+          <div className={styles.grid}>
+            {props.devto_getArticles.map(({ id, title, url }) => (
+              <a key={id} href={url} className={styles.card}>
+                <h2>{title} &rarr;</h2>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <i>Error loading your DEV.to information</i>
         )}
       </main>
 
       <footer className={styles.footer}>
         <a
-          href='https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
+          href='https://stepzen.com/getting-started?utm_source=stepzen-examples&utm_medium=default-template&utm_campaign=stepzen-examples'
           target='_blank'
           rel='noopener noreferrer'
         >
           Powered by{' '}
           <span className={styles.logo}>
-            <Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
+            <Image
+              src='/stepzen.svg'
+              alt='StepZen Logo'
+              width={100}
+              height={25}
+            />
           </span>
         </a>
       </footer>
@@ -104,10 +110,15 @@ export default function Home(props) {
   );
 }
 
-export async function getServerSideProps() {
-  const result = await client.request(query, {
+export async function getServerSideProps({
+  query: { first = 5, after = null },
+}) {
+  const result = await getSdk(client).MyQuery({
     login: 'royderks',
-    github_token: ''
+    username: 'cerchie',
+    github_token: '',
+    first,
+    after,
   });
 
   return {

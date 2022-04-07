@@ -1,0 +1,48 @@
+query MyQuery(
+  $login: String!
+  $username: String!
+  $github_token: Secret!
+  $first: Int = 5
+  $after: String = null
+) {
+  github_user(login: $login, github_token: $github_token) {
+    bio
+    repositories(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          owner {
+            login
+          }
+          name
+          description
+          stargazerCount
+          updatedAt
+        }
+      }
+    }
+  }
+  devto_getArticles(username: $username) {
+    id
+    title
+    url
+  }
+}
+
+query GetGithubRepository(
+  $name: String!
+  $owner: String!
+  $github_token: Secret!
+) {
+  github_repository(name: $name, owner: $owner, github_token: $github_token) {
+    id
+    name
+    description
+    stargazerCount
+    updatedAt
+  }
+}

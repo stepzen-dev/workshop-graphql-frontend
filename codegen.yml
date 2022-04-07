@@ -1,0 +1,8 @@
+overwrite: true
+schema: 'https://graphql07.stepzen.net/api/0777b07452dfe5d76ce46a4fecb3918d/__graphql'
+documents: '**/*.graphql'
+generates:
+  graphql.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-graphql-request'
