@@ -292,9 +292,17 @@ Implement pagination for the repositories in `pages/index.js`. Use a small value
 Let's convert our files to TypeScript, so we can autogenerate the code to do our requests to the GraphQL API. First, install GraphQL Codegen and it's dependencies:
 
 ```bash
-npm i @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-graphql-request
+npm i @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-operations @graphql-codegen/typescript-graphql-request
 # or
-yarn add @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-graphql-request
+yarn add @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-operations @graphql-codegen/typescript-graphql-request
+```
+
+Second, rename `pages/index.js` to `pages/index.tsx`. And install the following dependencies:
+
+```bash
+npm i --save-dev typescript @types/react@17 
+# or 
+yarn add --dev typescript @types/react@17 
 ```
 
 Create a new file called `codegen.yml` with the following contents:
@@ -307,6 +315,7 @@ generates:
   graphql.ts:
     plugins:
       - 'typescript'
+      - 'typescript-operations'
       - 'typescript-graphql-request'
 ```
 
